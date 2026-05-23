@@ -9,6 +9,7 @@ using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using System.Threading.Channels;
 using System.Threading.Tasks.Sources;
 using MiaoNet.Shared;
@@ -57,6 +58,12 @@ public sealed partial class MiaoServerConnection : IDisposable, INetModTransport
         {
             if (errors != SslPolicyErrors.None)
             {
+                if (errors == SslPolicyErrors.RemoteCertificateNameMismatch)
+                {
+                    if (((X509Certificate2?)certificate!).MatchesHostname(hostName))
+                        return true;
+                }
+
                 X509ChainStatusFlags chainStatusFlags = X509ChainStatusFlags.NoError;
                 if (chain != null)
                 {
@@ -82,7 +89,7 @@ public sealed partial class MiaoServerConnection : IDisposable, INetModTransport
 #endif
         SslClientAuthenticationOptions options = new()
         {
-            TargetHost = hostName,
+            TargetHost = string.Empty,
             EnabledSslProtocols = Connection.AllowedSslProtocols,
             CertificateRevocationCheckMode = revocationCheck
                 ? X509RevocationMode.Online

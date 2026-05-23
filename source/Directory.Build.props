@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <LangVersion>14</LangVersion>
-    <UseLocalhostPfx>true</UseLocalhostPfx>
+    <UseLocalhostPfx>false</UseLocalhostPfx>
     <UseLocalhostPfx Condition="$(Configuration) == 'Debug'">true</UseLocalhostPfx>
     <UseCeleMiaoAuth Condition="'$(UseCeleMiaoAuth)' == '' and '$(Configuration)' == 'Release'">false</UseCeleMiaoAuth>
     <UseCeleMiaoAuth Condition="'$(UseCeleMiaoAuth)' == ''">false</UseCeleMiaoAuth>
