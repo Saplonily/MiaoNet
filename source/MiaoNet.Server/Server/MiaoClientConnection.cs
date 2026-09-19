@@ -50,9 +50,16 @@ public sealed class MiaoClientConnection : IPacketSerializationContext
 
     public ServerPlayer Player { get; }
 
+    /// <summary>
+    /// Net-mods declared by this connection during handshake, in the order the client declared
+    /// them. That order is what this connection's own frames index into: it is the only thing
+    /// that makes an index meaningful, since no peer ever sees anybody else's list.
+    /// </summary>
+    public IReadOnlyList<HandshakeData.NetMod> NetMods { get; internal set; } = Array.Empty<HandshakeData.NetMod>();
+
     public PooledStringManager PooledStringManager { get; }
 
-    private readonly Channel<EnvelopedPacket> sendChannel;
+    private readonly Channel<OutgoingFrame> sendChannel;
 
     // TODO refactor
     public MiaoClientConnection(
@@ -75,8 +82,32 @@ public sealed class MiaoClientConnection : IPacketSerializationContext
         pendingRequests = new();
 
         UnboundedChannelOptions options = new() { SingleReader = true };
-        sendChannel = Channel.CreateUnbounded<EnvelopedPacket>(options);
+        sendChannel = Channel.CreateUnbounded<OutgoingFrame>(options);
         PooledStringManager = new(KnownPooledStrings.All);
+    }
+
+    /// <summary>
+    /// Finds the index this connection gave to the same net-mod, which is what a relayed frame
+    /// has to carry: a mod is identified on the wire by the receiver's own position for it, so
+    /// the sender's index means nothing here. Same name and same major version, otherwise the
+    /// bytes would mean nothing to this client either.
+    /// </summary>
+    public bool TryGetNetModIndex(HandshakeData.NetMod other, out byte netModIndex)
+    {
+        IReadOnlyList<HandshakeData.NetMod> mods = NetMods;
+        for (int i = 0; i < mods.Count; i++)
+        {
+            HandshakeData.NetMod mod = mods[i];
+            if (string.Equals(mod.Name, other.Name, StringComparison.Ordinal)
+                && mod.Version.Major == other.Version.Major)
+            {
+                netModIndex = (byte)i;
+                return true;
+            }
+        }
+
+        netModIndex = 0;
+        return false;
     }
 
     public async Task HandleClientConnectAsync()
@@ -126,13 +157,24 @@ public sealed class MiaoClientConnection : IPacketSerializationContext
         => QueuePacketAsync(default, packet);
 
     public ValueTask QueuePacketAsync(PacketEnvelope envelope, IContextualPacket packet)
-        => sendChannel.Writer.WriteAsync(new(envelope, packet));
+        => sendChannel.Writer.WriteAsync(OutgoingFrame.FromPacket(envelope, packet));
 
     public bool TryQueuePacket(IContextualPacket packet)
         => TryQueuePacket(default, packet);
 
     public bool TryQueuePacket(PacketEnvelope envelope, IContextualPacket packet)
-        => sendChannel.Writer.TryWrite(new(envelope, packet));
+        => sendChannel.Writer.TryWrite(OutgoingFrame.FromPacket(envelope, packet));
+
+    /// <summary>
+    /// Forwards a net-mod frame the server did not decode. The payload is shared by every target;
+    /// each copy is only re-headed with this sender's envelope and the index the target itself
+    /// gave to the sending mod.
+    /// </summary>
+    public ValueTask QueueRelayedFrameAsync(PacketEnvelope envelope, in RelayedFrame relay, byte relayNetModIndex)
+        => sendChannel.Writer.WriteAsync(OutgoingFrame.FromRelay(envelope, in relay, relayNetModIndex));
+
+    public bool TryQueueRelayedFrame(PacketEnvelope envelope, in RelayedFrame relay, byte relayNetModIndex)
+        => sendChannel.Writer.TryWrite(OutgoingFrame.FromRelay(envelope, in relay, relayNetModIndex));
 
     // TODO maybe we can add a UserParam parameter to avoid closure
     public async ValueTask<bool> RequestAsync<TResponse>(
@@ -295,7 +337,10 @@ public sealed class MiaoClientConnection : IPacketSerializationContext
             async (frame, bytesConsumed) =>
             {
                 metricsService.RecordPacketTcpDownload(1, bytesConsumed);
-                await server.HandlePacketAsync(this, frame.Envelope, frame.Packet);
+                if (frame.IsRelay)
+                    await server.HandleRelayedFrameAsync(this, frame.Relay!.Value);
+                else
+                    await server.HandlePacketAsync(this, frame.Envelope, frame.ID, frame.Packet!);
             },
             token
         );
@@ -314,7 +359,7 @@ public sealed class MiaoClientConnection : IPacketSerializationContext
     internal static async Task<long> ProcessPacketsAsync(
         PipeReader pipeReader,
         IPacketSerializationContext context,
-        Func<EnvelopedPacket, int, ValueTask> packetHandler,
+        Func<IncomingFrame, int, ValueTask> packetHandler,
         CancellationToken token
     )
     {
@@ -328,7 +373,7 @@ public sealed class MiaoClientConnection : IPacketSerializationContext
                 while (true)
                 {
                     long lengthBeforePacket = buffer.Length;
-                    if (!TryParsePacket(ref buffer, out EnvelopedPacket frame, context))
+                    if (!TryParseFrame(ref buffer, out IncomingFrame frame, context))
                         break;
                     int bytesConsumed = checked((int)(lengthBeforePacket - buffer.Length));
                     await packetHandler(frame, bytesConsumed);
@@ -369,9 +414,9 @@ public sealed class MiaoClientConnection : IPacketSerializationContext
                 bool flush = false;
                 while (channelReader.TryRead(out var packet))
                 {
-                    PacketFraming.WritePacket(batch, packet.Envelope, packet.Packet, this);
+                    PacketFraming.WriteFrame(batch, packet, this);
                     packetsCount++;
-                    if (!packet.Packet.CanBatch || batch.WrittenCount >= batchSize)
+                    if (!packet.Batchable || batch.WrittenCount >= batchSize)
                     {
                         flush = true;
                         break;
@@ -413,9 +458,9 @@ public sealed class MiaoClientConnection : IPacketSerializationContext
         logger.LogDebug("Sending task finished for {player}.", Player);
     }
 
-    internal static bool TryParsePacket(
+    internal static bool TryParseFrame(
         ref ReadOnlySequence<byte> sequence,
-        out EnvelopedPacket frame,
+        out IncomingFrame frame,
         IPacketSerializationContext context
     )
     {
@@ -425,32 +470,44 @@ public sealed class MiaoClientConnection : IPacketSerializationContext
             frame = default;
             return false;
         }
+
         Span<byte> headSpan = stackalloc byte[HeadSize];
         sequence.Slice(0, HeadSize).CopyTo(headSpan);
         ushort size = BinaryPrimitives.ReadUInt16LittleEndian(headSpan);
-        byte id = headSpan[sizeof(ushort)];
-        byte flags = headSpan[sizeof(ushort) + sizeof(byte)];
 
-        ReadOnlySequence<byte> payloadSequence = sequence.Slice(HeadSize);
-        if (payloadSequence.Length < size)
+        int total = HeadSize + size;
+        if (sequence.Length < total)
         {
             frame = default;
             return false;
         }
 
         byte[]? rented = null;
-        Span<byte> payloadSpan = size <= 1024
+        Span<byte> bodySpan = size <= 1024
             ? stackalloc byte[size]
             : (rented = ArrayPool<byte>.Shared.Rent(size)).AsSpan(0, size);
         try
         {
-            payloadSequence.Slice(0, size).CopyTo(payloadSpan);
-            sequence = payloadSequence.Slice(size);
+            sequence.Slice(HeadSize, size).CopyTo(bodySpan);
+            sequence = sequence.Slice(total);
 
-            RefBinaryReader reader = new(payloadSpan);
-            PacketEnvelope envelope = PacketEnvelope.ReadOptional(ref reader, (PacketEnvelopeFlags)flags);
-            var readHandler = PacketRegistry.GetPacketReader(id);
-            frame = new(envelope, readHandler(ref reader, context));
+            if (!PacketFraming.TryParseFrame(headSpan, bodySpan, out ParsedFrame parsed))
+                throw new InvalidDataException(SR.FrameHasNoRoute);
+
+            if (parsed.IsExtended)
+            {
+                // A client speaks only for itself, and net-mod requests do not exist yet.
+                if (parsed.Envelope.HasSender || parsed.Envelope.HasRequestID || parsed.Envelope.IsResponse)
+                    throw new InvalidDataException(SR.ExtendedFrameMustNotCarryEnvelope);
+
+                // The payload is copied once into a frame the server can forward later; every
+                // target then shares those same bytes.
+                frame = IncomingFrame.FromRelay(PacketFraming.ToRelay(bodySpan, parsed));
+                return true;
+            }
+
+            IContextualPacket packet = PacketFraming.Decode(bodySpan, parsed, context, out PacketID id);
+            frame = IncomingFrame.FromPacket(parsed.Envelope, in id, packet);
             return true;
         }
         finally

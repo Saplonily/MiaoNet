@@ -155,7 +155,7 @@ partial class MiaoNetContext
                 : new DnsEndPoint(host, Port);
 
             LanguageCode langCode = GameLanguage.GetLanguageCode(Dialog.Language.Id);
-            HandshakeData.NetMod[] netMods = [];
+            HandshakeData.NetMod[] netMods = BuildHandshakeNetMods();
 
             HandshakeData handshakeData;
 

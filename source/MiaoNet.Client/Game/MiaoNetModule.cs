@@ -26,6 +26,17 @@ public sealed class MiaoNetModule : EverestModule
 
     public MiaoNetContext MiaoNetContext => miaoNetContext ??= new();
 
+    /// <summary>
+    /// The context of a session, or <see langword="null"/> while nothing created one yet.
+    /// <para>
+    /// Reading <see cref="MiaoNetContext"/> creates the context, which builds MiaoNet's font and
+    /// all of its components and therefore needs the game to be loaded; a mod which only wants to
+    /// look at a running session uses this instead, and simply sees nothing until the player
+    /// connects. It is therefore safe to call from a mod's own update loop.
+    /// </para>
+    /// </summary>
+    public MiaoNetContext? CurrentContext => miaoNetContext;
+
     // TODO this is ugly
     public static Vector2? NextPlayerSpawnPosition { get; set; }
 
@@ -379,8 +390,14 @@ public sealed class MiaoNetModule : EverestModule
         if (!seenOverworld)
         {
             seenOverworld = true;
-            EverestModule? cnet = Everest.Modules.FirstOrDefault(m => m.Metadata.Name == "CelesteNet.Client");
-            EverestModule? mnet = Everest.Modules.FirstOrDefault(m => m.Metadata.Name == "Miao.CelesteNet.Client");
+            // Only a client which ships its own code conflicts with us. A compatibility provider
+            // (such as the CelesteNet shim) registers a module under the CelesteNet name so that
+            // CelesteNet mods resolve their dependency, but it has no DLL of its own -- and it is
+            // running *on* MiaoNet, so warning about it would be backwards.
+            EverestModule? cnet = Everest.Modules.FirstOrDefault(static m =>
+                m.Metadata.Name == "CelesteNet.Client" && !string.IsNullOrEmpty(m.Metadata.DLL));
+            EverestModule? mnet = Everest.Modules.FirstOrDefault(static m =>
+                m.Metadata.Name == "Miao.CelesteNet.Client" && !string.IsNullOrEmpty(m.Metadata.DLL));
             if (cnet is not null || mnet is not null)
             {
                 var u = self.GetUI<OuiConflict>();

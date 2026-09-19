@@ -25,20 +25,28 @@ public sealed class Program
         ReadOnlySpan<byte> span = bytes;
         while (true)
         {
-            RefBinaryReader reader = new RefBinaryReader(span);
-            ushort size = reader.ReadUInt16();
-            byte type = reader.ReadByte();
-            byte flags = reader.ReadByte();
-            PacketEnvelope envelope = PacketEnvelope.ReadOptional(ref reader, (PacketEnvelopeFlags)flags);
-            var readHandler = PacketRegistry.GetPacketReader(type);
-            var packet = readHandler(ref reader, ctx);
+            if (!PacketFraming.TryReadFrame(span, out ParsedFrame parsed, out int consumed))
+                break;
+
+            if (parsed.IsExtended)
+            {
+                // A net-mod index only means something to a process that declares the mod, so a
+                // dump can describe such a frame but never decode it.
+                Console.WriteLine($"===net-mod frame: mod index {parsed.NetModIndex}, packet {parsed.ID}===");
+                Console.WriteLine($"route: {parsed.Route}");
+                Console.WriteLine($"payload: {parsed.TotalSize - Connection.PacketHeaderSize - parsed.PayloadOffset} bytes");
+                span = span[consumed..];
+                continue;
+            }
+
+            IContextualPacket packet = PacketFraming.DecodeFrame(span, parsed, ctx, out PacketID id);
             var text = JsonSerializer.Serialize<object>(packet, options);
-            Console.WriteLine($"==={packet.GetType().FullName}===");
-            string sender = envelope.HasSender ? envelope.SenderPlayerID.ToString() : "-";
-            string request = envelope.HasRequestID ? envelope.RequestID.ToString() : "-";
+            Console.WriteLine($"==={packet.GetType().FullName} ({id})===");
+            string sender = parsed.Envelope.HasSender ? parsed.Envelope.SenderPlayerID.ToString() : "-";
+            string request = parsed.Envelope.HasRequestID ? parsed.Envelope.RequestID.ToString() : "-";
             Console.WriteLine($"envelope: sender={sender}, request={request}");
             Console.WriteLine(text);
-            span = span[(Connection.PacketHeaderSize + size)..];
+            span = span[consumed..];
         }
     }
 

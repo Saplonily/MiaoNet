@@ -30,7 +30,7 @@ public sealed class MiaoClientConnectionTests
         );
 
         await timeoutCalled.Task.WaitAsync(TimeSpan.FromSeconds(2));
-        Assert.IsNull(connection.TakeResponseHandler(FirstRequestId));
+        Assert.IsNull(connection.TakeResponseHandler(FirstRequestID));
     }
 
     [TestMethod]
@@ -56,7 +56,7 @@ public sealed class MiaoClientConnectionTests
             }
         );
 
-        var handler = connection.TakeResponseHandler(FirstRequestId);
+        var handler = connection.TakeResponseHandler(FirstRequestID);
         Assert.IsNotNull(handler);
         await handler(new PacketPong());
         await Task.Delay(150);
@@ -93,7 +93,7 @@ public sealed class MiaoClientConnectionTests
         cancellation.Cancel();
     }
 
-    private const int FirstRequestId = 1;
+    private const int FirstRequestID = 1;
 
     private static MiaoClientConnection CreateConnection()
     {

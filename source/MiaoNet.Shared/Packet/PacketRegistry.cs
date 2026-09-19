@@ -6,12 +6,21 @@ namespace MiaoNet.Shared;
 
 public delegate IContextualPacket RefBinaryPacketReadHandler(ref RefBinaryReader reader, IPacketSerializationContext context);
 
+/// <summary>
+/// The built-in packet types, frozen at compile time from <see cref="PacketRegistryAttribute"/>.
+/// <para>
+/// Net-mod packets are deliberately absent: their ids live in <see cref="MiaoNetNetMods"/> and
+/// are resolved through the sender's net-mod list. Keeping this table closed is what makes a
+/// packet of an unregistered type impossible to write or read, instead of silently travelling
+/// as some other type.
+/// </para>
+/// </summary>
 public static class PacketRegistry
 {
     public const byte MaxPacketCount = byte.MaxValue;
 
     private static readonly FrozenDictionary<byte, RefBinaryPacketReadHandler> idToReader;
-    private static readonly FrozenDictionary<Type, byte> typeToId;
+    private static readonly FrozenDictionary<Type, byte> typeToID;
 
     static PacketRegistry()
     {
@@ -25,26 +34,13 @@ public static class PacketRegistry
         List<(byte id, Type type, RefBinaryPacketReadHandler reader)> list =
             infoAttr.Types.Select((type, id) =>
             {
-                var interfaceType = typeof(IContextualPacket<>).MakeGenericType(type);
-                if (!type.IsAssignableTo(interfaceType))
-                    throw new InvalidOperationException(SR.TypeMustAtLeaseImplContextualPacket);
-
-                var map = type.GetInterfaceMap(
-                    typeof(IContextualRefBinarySerializable<,>)
-                        .MakeGenericType(type, typeof(IPacketSerializationContext))
-                );
-                var readerIndex = Array.FindIndex(
-                    map.InterfaceMethods,
-                    m => m.Name is nameof(IContextualPacket<>.Deserialize)
-                );
-                SafeGuard.Assert(readerIndex is 0 or 1);
-
-                var reader = map.TargetMethods[readerIndex].CreateDelegate<RefBinaryPacketReadHandler>();
+                // Only the reflection is expensive, and it happens once per type.
+                RefBinaryPacketReadHandler reader = PacketReaderFactory.Compile(type);
                 return ((byte)(id + 1), type, reader); // 0 reserved
             }).ToList();
 
         idToReader = list.ToFrozenDictionary(t => t.id, t => t.reader);
-        typeToId = list.ToFrozenDictionary(t => t.type, t => t.id);
+        typeToID = list.ToFrozenDictionary(t => t.type, t => t.id);
     }
 
     public static RefBinaryPacketReadHandler GetPacketReader(byte id)
@@ -54,10 +50,22 @@ public static class PacketRegistry
         return handler;
     }
 
+    /// <summary>The registry id of a built-in packet type. Exact match, no type hierarchy.</summary>
+    public static byte GetBuiltInID(Type packetType)
+    {
+        ArgumentNullException.ThrowIfNull(packetType);
+
+        if (typeToID.TryGetValue(packetType, out byte id))
+            return id;
+
+        throw new KeyNotFoundException(string.Format(
+            CultureInfo.InvariantCulture, SR.TypeIsNotRegisteredAsAPacket, packetType.FullName
+        ));
+    }
+
     public static byte GetPacketID(IContextualPacket packet)
     {
-        if (!typeToId.TryGetValue(packet.GetType(), out byte id))
-            throw new KeyNotFoundException(string.Format(CultureInfo.InvariantCulture, SR.TypeIsNotRegisteredAsAPacket, packet.GetType().FullName));
-        return id;
+        ArgumentNullException.ThrowIfNull(packet);
+        return GetBuiltInID(packet.GetType());
     }
 }

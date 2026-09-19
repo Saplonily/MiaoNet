@@ -15,7 +15,7 @@ using MiaoNet.Shared;
 
 namespace MiaoNet.ClientShared;
 
-public sealed partial class MiaoServerConnection : IDisposable
+public sealed partial class MiaoServerConnection : IDisposable, INetModTransport
 {
     private static readonly ArrayPool<byte> pool = ArrayPool<byte>.Shared;
 
@@ -24,7 +24,7 @@ public sealed partial class MiaoServerConnection : IDisposable
 
     private readonly ByteArrayBufferWriter sendBuffer;
 
-    private readonly ConcurrentQueue<EnvelopedPacket> sendQueue;
+    private readonly ConcurrentQueue<OutgoingFrame> sendQueue;
     private readonly SemaphoreSlim sendSemaphore;
 
     private MiaoServerConnection(Socket socket, SslStream sslStream)
@@ -201,8 +201,8 @@ public sealed partial class MiaoServerConnection : IDisposable
     {
         while (!token.IsCancellationRequested)
         {
-            while (sendQueue.TryDequeue(out EnvelopedPacket packet))
-                await SendPacketAsync(packet, context, token);
+            while (sendQueue.TryDequeue(out OutgoingFrame frame))
+                await SendFrameAsync(frame, context, token);
             if (token.IsCancellationRequested)
                 return;
             await sendSemaphore.WaitAsync(token);
@@ -219,7 +219,7 @@ public sealed partial class MiaoServerConnection : IDisposable
         byte[] headerBuffer = new byte[Connection.PacketHeaderSize];
         while (!token.IsCancellationRequested)
         {
-            EnvelopedPacket? packet = await PacketFraming.ReadPacketAsync(
+            EnvelopedPacket? packet = await PacketFraming.ReadFrameAsync(
                 sslStream,
                 headerBuffer,
                 context,
@@ -238,16 +238,26 @@ public sealed partial class MiaoServerConnection : IDisposable
 
     public int QueuePacket(PacketEnvelope envelope, IContextualPacket packet)
     {
-        sendQueue.Enqueue(new(envelope, packet));
+        sendQueue.Enqueue(OutgoingFrame.FromPacket(envelope, packet));
         int count = sendQueue.Count;
         sendSemaphore.Release();
         return count;
     }
 
-    private async Task SendPacketAsync(EnvelopedPacket packet, IPacketSerializationContext context, CancellationToken token)
+    /// <summary>
+    /// Sends one net-mod packet. This is the transport the net-mod API installs while a
+    /// session is alive, which is why a mod never has to hold a reference to the connection.
+    /// </summary>
+    public void Send(in PacketID id, in PacketRoute route, IContextualPacket packet)
+    {
+        sendQueue.Enqueue(OutgoingFrame.FromNetMod(default, in id, in route, packet));
+        sendSemaphore.Release();
+    }
+
+    private async Task SendFrameAsync(OutgoingFrame frame, IPacketSerializationContext context, CancellationToken token)
     {
         sendBuffer.Clear();
-        PacketFraming.WritePacket(sendBuffer, packet.Envelope, packet.Packet, context);
+        PacketFraming.WriteFrame(sendBuffer, frame, context);
         await sslStream.WriteAsync(sendBuffer.WrittenMemory, token);
     }
 }

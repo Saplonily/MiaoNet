@@ -1,6 +1,4 @@
 using System.Collections.Frozen;
-using System.Collections.Immutable;
-using System.Runtime.CompilerServices;
 
 namespace MiaoNet.Shared;
 
@@ -15,47 +13,48 @@ public delegate Task PacketHandler<TPacket>(Server.MiaoClientConnection connecti
 #if MIAO_CLIENT || MIAO_MOCKCLIENT || INSPECTOR
 public sealed class PacketDispatcher
 {
-    private readonly FrozenDictionary<Type, PacketHandler<IContextualPacket>> dictionary;
+    private readonly FrozenDictionary<ushort, PacketHandler<IContextualPacket>> dictionary;
 
     public PacketDispatcher(PacketHandlerRegister register)
     {
         dictionary = register.Dictionary.ToFrozenDictionary();
     }
 
-    public bool DispatchPacket(PacketEnvelope envelope, IContextualPacket packet)
+    /// <summary>
+    /// Looks the packet up by its own id. There is no fallback to a handler registered for a
+    /// base type: an id that nobody registered is not dispatched to somebody else.
+    /// </summary>
+    public bool DispatchPacket(PacketEnvelope envelope, in PacketID id, IContextualPacket packet)
     {
-        if (dictionary.TryGetValue(packet.GetType(), out PacketHandler<IContextualPacket>? d))
-        {
-            d(envelope, packet);
-            return true;
-        }
-        else
-        {
+        if (!dictionary.TryGetValue(id.Key, out PacketHandler<IContextualPacket>? handler))
             return false;
-        }
+
+        handler(envelope, packet);
+        return true;
     }
 }
 #elif MIAO_SERVER
 public sealed class PacketDispatcher
 {
-    private readonly FrozenDictionary<Type, PacketHandler<IContextualPacket>> dictionary;
+    private readonly FrozenDictionary<ushort, PacketHandler<IContextualPacket>> dictionary;
 
     public PacketDispatcher(PacketHandlerRegister register)
     {
-        dictionary = register.Dictionary.Select(pair => new KeyValuePair<Type, PacketHandler<IContextualPacket>>(pair.Key, pair.Value)).ToFrozenDictionary();
+        dictionary = register.Dictionary.ToFrozenDictionary();
     }
 
-    public async ValueTask<bool> DispatchPacketAsync(Server.MiaoClientConnection connection, PacketEnvelope envelope, IContextualPacket packet)
+    public async ValueTask<bool> DispatchPacketAsync(
+        Server.MiaoClientConnection connection,
+        PacketEnvelope envelope,
+        PacketID id,
+        IContextualPacket packet
+    )
     {
-        if (dictionary.TryGetValue(packet.GetType(), out var handler))
-        {
-            await handler(connection, envelope, packet);
-            return true;
-        }
-        else
-        {
+        if (!dictionary.TryGetValue(id.Key, out PacketHandler<IContextualPacket>? handler))
             return false;
-        }
+
+        await handler(connection, envelope, packet);
+        return true;
     }
 }
 #endif
