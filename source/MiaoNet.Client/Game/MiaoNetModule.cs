@@ -26,6 +26,8 @@ public sealed class MiaoNetModule : EverestModule
 
     public MiaoNetContext MiaoNetContext => miaoNetContext ??= new();
 
+    public MiaoNetContext? MiaoNetContextOptional => miaoNetContext;
+
     // TODO this is ugly
     public static Vector2? NextPlayerSpawnPosition { get; set; }
 
