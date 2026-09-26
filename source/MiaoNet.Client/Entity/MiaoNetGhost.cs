@@ -485,7 +485,7 @@ public sealed class MiaoNetGhost : MiaoNetGhostEntity
     {
         dead = true;
         selfHoldable.Holder?.Drop();
-        Collidable = false;
+        UpdateCollidable();
         UpdateVisible();
         if (Scene is Level level)
         {
@@ -694,7 +694,7 @@ public sealed class MiaoNetGhost : MiaoNetGhostEntity
 
     private void UpdateCollidable()
     {
-        Collidable = Interactions && MiaoNetModule.Settings.PlayerInteractions && !OnlinePlayer.IsPaused;
+        Collidable = !dead && Interactions && MiaoNetModule.Settings.PlayerInteractions && !OnlinePlayer.IsPaused;
     }
 
     private void PrepareHoldableSprite(HoldableType type)
