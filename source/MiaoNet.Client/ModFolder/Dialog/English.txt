@@ -7,6 +7,7 @@ miaonet_options_login= Login
 miaonet_options_login_tip=
 	This will open your browser to
 	log in to the MiaoNet forum.
+miaonet_options_login_open_failed= Failed to open browser. Please use the link in the clipboard.
 miaonet_options_last_logged_in_name= Last Logged In As:
 
 miaonet_options_custom_auth_name= Name:

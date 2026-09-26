@@ -57,7 +57,14 @@ public static class MenuMiaoNetOptions
                     "&response_type=code" +
                     "&redirect_uri=http://localhost:21472/auth" +
                     "&scope=celeste.read";
-                SDL2.SDL.SDL_OpenURL(url);
+                int ret = SDL2.SDL.SDL_OpenURL(url);
+                if (ret != 0)
+                {
+                    TextInput.SetClipboardText(url);
+                    var context = MiaoNetModule.Instance.MiaoNetContext;
+                    string msg = Dialog.Get("miaonet_options_login_open_failed");
+                    context.StatusComponent.ShowStatusMessage(msg);
+                }
             }
         };
         menu.Add(item);

@@ -6,6 +6,7 @@ miaonet_options_login_state= 登录状态
 miaonet_options_login= 登录
 miaonet_options_login_tip= 
 	这会打开浏览器访问 MiaoNet 论坛并进行登录。
+miaonet_options_login_open_failed= 打开浏览器失败，请手动使用剪切板中的链接进行访问
 miaonet_options_last_logged_in_name= 上次登录为：
 
 miaonet_options_custom_auth_name= 名称：
