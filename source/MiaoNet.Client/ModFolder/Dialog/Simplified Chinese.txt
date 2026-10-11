@@ -1,3 +1,175 @@
+miaonet_oobe_title= 欢迎来到 MiaoNet！
+miaonet_oobe_welcome=
+	这里是蔚蓝群服 MiaoNet。
+	这份引导取自群服的上手指南，会带你了解登录、连接与常用功能。
+	之后随时可以在 Mod 选项里重新打开它。
+miaonet_oobe_start= 开始引导
+miaonet_oobe_button_skip= 跳过引导
+miaonet_oobe_prev= 上一步
+miaonet_oobe_next= 下一步
+miaonet_oobe_finish= 完成
+
+miaonet_oobe_login_header= 登录
+miaonet_oobe_login_desc=
+	打开 Mod 选项，找到 MiaoNet，选中「登录」条目以发起登录。
+	游戏会自动打开浏览器并展示授权页面，点击「授权」按钮，
+	出现授权就绪的页面即为登录成功。
+	你需要在发起登录后的两分钟内，在同一设备上完成授权。
+miaonet_oobe_login_local=
+	当前版本不使用论坛授权，
+	请先在 Mod 选项里填写你的名称等信息，
+	再选中下面的「连接」。
+
+miaonet_oobe_connect_header= 连接
+miaonet_oobe_connect_desc=
+	登录成功后回到游戏，选中「连接」条目即可连接到服务器。
+	左下角出现「连接成功」并展示服务器欢迎语，即为连接成功。
+	如果希望每次启动游戏时都自动连接，可以开启下面的「游戏启动时连接」。
+
+miaonet_oobe_playerlist_header= 玩家列表
+miaonet_oobe_playerlist_desc=
+	按下 | 即可打开玩家列表，展示服务器内所有玩家的状态；再次按下即可关闭。
+	使用 | 与 | 可以上下滚动玩家列表。
+
+
+miaonet_oobe_chat_header= 聊天栏
+miaonet_oobe_chat_desc=
+	按下 | 即可打开聊天栏，翻阅消息记录，直接打字即可输入消息。
+	使用 | 与 | 滚动消息记录。
+	按下 | 发送消息，或按下 | 放弃并关闭聊天栏（已输入的草稿不会保存）。
+	消息记录从连接服务器开始记录，你无法翻阅连接服务器之前的消息，
+	意外断连也会清空消息记录。
+
+miaonet_oobe_command_header= 指令与补全
+miaonet_oobe_command_desc=
+	在聊天栏中输入「/」即可开始输入指令，过程中会弹出补全提示，
+	使用方向键上下选择补全项，然后按下 Tab 补全。
+	输入「/help」可以查看所有可用的指令。
+	你也可以配置「输入指令」的键位，一键打开聊天栏并立即开始输入指令。
+
+miaonet_oobe_players_header= 地图内的玩家
+miaonet_oobe_players_desc=
+	游戏内会显示同一地图内的其他玩家，他们也会看到你。
+	玩家头顶会显示名称，如果觉得视野被遮挡，
+	可以在设置里降低玩家或玩家名称的不透明度。
+
+miaonet_oobe_emote_shortcut_header= 表情快捷键
+miaonet_oobe_emote_shortcut_desc=
+	在地图内按下数字键 1 ~ 8，即可发送对应键位绑定的表情，
+	地图内的玩家都会看到。
+	你可以在设置中修改「发送表情 1 ~ 8」的键位。
+
+miaonet_oobe_emote_command_header= 文本表情
+miaonet_oobe_emote_command_desc=
+	使用指令「/emote 文本」或简写「/e 文本」可发送文本表情。
+	输入指令时同样会弹出补全提示。
+
+miaonet_oobe_emote_file_header= 自定义表情
+miaonet_oobe_emote_file_desc=
+	数字键 1 ~ 8 对应的表情也可以修改。
+	这需要先修改本 Mod 的表情文件，再在设置中重载表情设置。
+
+miaonet_oobe_teleport_header= 传送
+miaonet_oobe_teleport_desc=
+	「/teleport 玩家」或简写「/tp 玩家」可传送到该玩家身边。
+	「/random-teleport」或简写「/rtp」会随机选择一位玩家作为目标。
+	「/back」可回到传送前的房间，你将出现在该房间的某个重生点处。
+	如果对方正在游玩 Mod 地图，你需要安装并启用对应的 Mod，才可以传送到对方身边。
+	正在炼金的玩家不会成为随机传送的目标，但仍然可能成为定向传送的目标。
+
+miaonet_oobe_watch_header= 观战
+miaonet_oobe_watch_desc=
+	「/watch 玩家」或简写「/wt 玩家」可观战对应玩家。
+	「/unwatch」或简写「/uw」退出观战，你会出现在对方所在房间的某个重生点处。
+	你只能观战同一张地图内的玩家；观战过程中你会从地图内消失，其他玩家不会看到你。
+
+miaonet_oobe_mention_header= 提及与私聊
+miaonet_oobe_mention_desc=
+	提及：在消息文本中输入「@玩家」，对方收到这条消息时会同时收到音效提醒。
+	私聊：「/whisper 玩家 消息」或简写「/w 玩家 消息」可向对应玩家发送私聊消息。
+	输入指令与玩家名称时都会弹出补全提示，用 | 与 | 选择补全项，按 | 补全。
+
+miaonet_oobe_interactions_header= 玩家交互
+miaonet_oobe_interactions_desc=
+	开启玩家交互后，双方可以互相踩头和抛接。
+	这会大幅影响双方正常过关，请仅在需要的时刻开启。
+
+miaonet_oobe_channel_header= 频道
+miaonet_oobe_channel_desc=
+	频道功能类似于其它联机游戏中的房间：
+	同一地图内，相同频道里的玩家互相可见，不同频道里的玩家互不可见。
+	使用「/channel 频道」或「/join 频道」可加入频道，频道不存在时会自动创建。
+	默认的主频道名称为「main」，「/join main」可以回到主频道。
+	你无法看到其它频道玩家所在的地图，无法观战他们，也无法选定他们为传送目标；
+	但你仍然可以提及他们，或者与他们私聊。
+
+miaonet_oobe_channel_private_header= 私有频道
+miaonet_oobe_channel_tip=
+	频道名称以半角叹号「!」开头时，该频道为私有频道。
+	频道外的玩家无法看到私有频道的名称；
+	但如果得知并准确输入了名称，依然能够加入，
+	加入时输入的频道名称也需要以「!」开头，
+	也就是和创建时的输入完全一致。
+	在私有频道内的玩家可以在玩家列表中看到当前频道名称，
+	截图时请留意，避免意外泄露。
+
+miaonet_oobe_chat_scopes_header= 聊天域
+miaonet_oobe_chat_scopes_desc=
+	聊天域：群服包含「公屏」「频道」「地图」三个聊天域，
+	另外聊天栏还有一个「全部」标签页，包含自己收到的所有消息。
+	使用 | + | / | 切换标签页。
+	在「全部」标签页发送的消息，会发送到「公屏」聊天域。
+	玩家进出消息、服务器公告和私聊消息会在所有标签页显示。
+	你也可以临时指定一条消息发往的聊天域：
+	「/global-chat」或「/gc」、「/channel-chat」或「/cc」、
+	「/map-chat」或「/mc」。
+
+miaonet_oobe_photo_header= 合影模式
+miaonet_oobe_photo_desc=
+	如果希望与众多玩家一同合影，为了便于站位调整，
+	以及降低服务器带宽压力，
+	强烈建议开启合影模式：
+	使用「/group-photo-mode」或简写「/hy」即可开启。
+	开启后画面中会出现一个平台，可以用鼠标控制移动。
+	点击 | 将固定平台，自己会瞬移到平台中心；
+	平台固定后，点击 | 可隐藏平台，点击 | 可解除固定。
+	其他玩家始终不会看到你的合影平台，在他们的视角里你将悬浮在空中。
+	站上合影平台时你不会吃到红草莓，因此你可以携带红草莓合影。
+
+miaonet_oobe_fireworks_header= 烟花
+miaonet_oobe_photo_tip=
+	开启下方的「烟花」选项并配置「生成烟花」的键位后，
+	按下 | 即可点放烟花。
+	烟花功能会大幅影响其他玩家正常过关，
+	请仅在需要的时刻（例如合影庆祝）使用。
+
+miaonet_oobe_goldening_protection_header= 炼金保护
+miaonet_oobe_goldening_protection_desc=
+	炼金保护：如果你携带了金草莓或类似挑战草莓，你不会成为其他玩家随机传送的目标，直到你完成炼金或失去金草莓为止。
+	当你捡起金草莓或类似挑战草莓时，玩家交互功能将自动关闭，如有需要可以自行手动开启。
+
+miaonet_oobe_livemode_header= 直播模式
+miaonet_oobe_livemode_desc=
+	开启后会屏蔽所有玩家的消息和表情，自己也无法发送消息和表情；
+	玩家列表中会隐藏所有玩家（包括自己）所在的房间名称，
+	如果其他玩家正在游玩 Mod 地图，而你没有安装并启用对应的 Mod，
+	玩家列表中还会隐藏这些玩家所在的地图名称。
+	你仍然会收到玩家进出消息（可单独关闭）和服务器公告。
+	与其它联机游戏不同，直播模式不会隐藏玩家昵称和头像，并且该选项不会被保存。
+
+miaonet_oobe_interface_header= 界面
+miaonet_oobe_interface_desc=
+	如果觉得玩家列表和聊天栏的文字偏小，可以在下面的「界面」子菜单里调整。
+	想要接近 0.4.1-alpha5 的界面观感，可以把「玩家列表界面大小」和「聊天界面大小」改为 10，
+	把「聊天消息间隔高度」改为 2。
+
+miaonet_oobe_finish_header= 结语
+miaonet_oobe_finish_desc=
+	本引导只覆盖了基础常用的功能，还有很多功能没有讲解
+	（例如富文本消息和自定义表情），欢迎参阅其它高阶教程。
+	你可以随时使用指令「/help」查看所有可用的指令。
+	祝你在 MiaoNet 玩得开心！
+
 miaonet_menu_options= MiaoNet
 miaonet_options_title= MiaoNet 选项
 
@@ -81,6 +253,7 @@ miaonet_options_open_emotes_file_tip=
 	使用默认打开方式打开本 Mod 的表情文件，
 	有需要时请选择文本编辑器作为打开方式。
 miaonet_options_reload_emote_settings= 重载表情设置
+miaonet_options_open_oobe= 打开初始引导界面
 miaonet_options_key_bindings= 按键设置
 
 miaonet_options_behaviours= 行为

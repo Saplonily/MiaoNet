@@ -389,6 +389,12 @@ public sealed class MiaoNetModule : EverestModule
                 self.Goto<OuiConflict>();
                 return;
             }
+            if (!Settings.ShownOobe)
+            {
+                Settings.ShownOobe = true;
+                self.Goto<OuiMiaoNetOobe>();
+                return;
+            }
             if (Settings.ConnectOnGameStart)
             {
                 Entity entity = new();

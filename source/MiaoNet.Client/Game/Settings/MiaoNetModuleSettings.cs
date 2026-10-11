@@ -280,6 +280,9 @@ public sealed class MiaoNetModuleSettings : EverestModuleSettings,
 
     [YamlIgnore] public bool GroupPhotoMode { get; set; }
 
+    //[YamlIgnore]
+    public bool ShownOobe { get; set; }
+
     #endregion
 
     public MiaoNetModuleSettings()

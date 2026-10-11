@@ -35,5 +35,15 @@ public static class MiaoNetCommands
         var ctx = MiaoNetModule.Instance.MiaoNetContext;
         ctx.StatusComponent.ShowStatusMessage(text, spin);
     }
+
+    [Command("mn_oobe", "Goto oobe.")]
+    public static void OpenOobe()
+    {
+        if (Engine.Scene is Overworld overworld)
+        {
+            overworld.ReloadMenus(Overworld.StartMode.ReturnFromOptions);
+            overworld.Goto<OuiMiaoNetOobe>();
+        }
+    }
 #endif
 }

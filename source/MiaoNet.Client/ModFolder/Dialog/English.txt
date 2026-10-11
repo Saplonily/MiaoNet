@@ -1,3 +1,200 @@
+miaonet_oobe_title= Welcome to MiaoNet!
+miaonet_oobe_welcome=
+	This is MiaoNet, a Celeste community server.
+	This tour is based on the community getting-started guide and walks you
+	through logging in, connecting and the common features.
+	You can reopen it at any time from the Mod options.
+miaonet_oobe_start= Start Tour
+miaonet_oobe_button_skip= Skip Tour
+miaonet_oobe_prev= Previous
+miaonet_oobe_next= Next
+miaonet_oobe_finish= Finish
+
+miaonet_oobe_login_header= Login
+miaonet_oobe_login_desc=
+	Open the Mod options,
+	find MiaoNet and press "Login" to start logging in.
+	The game opens your browser on the authorization page;
+	press "Authorize", and the page telling you authorization 
+	is ready means you are logged in.
+	You have to authorize within two minutes, on the same device.
+miaonet_oobe_login_local=
+	This version does not use forum authorization.
+	Fill in your name and other info in the Mod options first,
+	then turn on "Connected" below.
+
+miaonet_oobe_connect_header= Connecting
+miaonet_oobe_connect_desc=
+	Back in the game, turn on "Connected" to connect to the server.
+	"Connected" in the bottom left with the
+	server welcome message means you are in.
+	Enable "Connect on game start" below
+	to connect on every game start.
+
+miaonet_oobe_playerlist_header= Player List
+miaonet_oobe_playerlist_desc=
+	Press | to open the player list,
+	which shows the state of everyone on the server;
+	press it again to close.
+	Use | and | to scroll the list.
+
+
+miaonet_oobe_chat_header= Chat
+miaonet_oobe_chat_desc=
+	Press | to open the chat,
+	where you can read the message history
+	and start typing right away.
+	Use | and | to scroll the message history.
+	Press | to send, or | to discard
+	and close the chat (your draft is not saved).
+	The history starts when you connect,
+	so you cannot read messages from before,
+	and an unexpected disconnect clears it.
+
+miaonet_oobe_command_header= Commands
+miaonet_oobe_command_desc=
+	Type "/" in the chat to start a command;
+	a completion list pops up,
+	pick with the arrow keys
+	and press Tab to complete.
+	Type "/help" to list every available command.
+	You can also bind an "Input Commands" key
+	to open the chat and start typing at once.
+
+miaonet_oobe_players_header= Players in the Map
+miaonet_oobe_players_desc=
+	Other players in the same map are shown in game,
+	and they see you as well.
+	Their names are shown above their heads;
+	if they get in the way,
+	you can lower the opacity of players
+	and player names in the options.
+
+miaonet_oobe_emote_shortcut_header= Emote Shortcuts
+miaonet_oobe_emote_shortcut_desc=
+	Press 1 ~ 8 in a map to send the emote bound to that key;
+	everyone in the map sees it.
+	The "Send Emote 1 ~ 8" keys can be changed in the options.
+
+miaonet_oobe_emote_command_header= Text Emotes
+miaonet_oobe_emote_command_desc=
+	Use "/emote text", or "/e text" for short, to send a text emote.
+	Completions pop up here as well.
+
+miaonet_oobe_emote_file_header= Custom Emotes
+miaonet_oobe_emote_file_desc=
+	The emote bound to each of the 1 ~ 8 keys can be changed too.
+	That means editing the emotes file of this mod and reloading the emote settings.
+
+miaonet_oobe_teleport_header= Teleport
+miaonet_oobe_teleport_desc=
+	"/teleport player", or "/tp player" for short, teleports you to that player.
+	"/random-teleport", or "/rtp", picks a random player as the target.
+	"/back" returns you to the room you were in, at one of its spawn points.
+	If the other player is in a modded map, you need that mod installed and enabled to teleport to them.
+	Players taking a golden strawberry are never picked by random teleport, but can still be targeted on purpose.
+
+miaonet_oobe_watch_header= Watching
+miaonet_oobe_watch_desc=
+	"/watch player", or "/wt player", spectates that player.
+	"/unwatch", or "/uw", stops watching and places you at a spawn point of
+	the room the watched player is in. You can only watch players in the same map;
+	while watching you disappear from the map for everyone else.
+
+miaonet_oobe_mention_header= Mentions & Whispers
+miaonet_oobe_mention_desc=
+	Mention: typing "@player" in a message also plays a sound for that player.
+	Whisper: "/whisper player message", or "/w player message", sends a private message.
+	Completions pop up for commands and player names: pick with | and |, confirm with |.
+
+miaonet_oobe_interactions_header= Player Interactions
+miaonet_oobe_interactions_desc=
+	With player interactions on, you and other players can bounce off and throw each other.
+	This heavily affects normal play for both sides, so only turn it on when you need it.
+
+miaonet_oobe_channel_header= Channels
+miaonet_oobe_channel_desc=
+	Channels work like rooms in other multiplayer games:
+	in the same map, players in the same channel can see each other,
+	and others cannot. Use "/channel name" or "/join name" to join
+	a channel, creating it if it does not exist. The default main
+	channel is called "main"; "/join main" takes you back to it.
+	You cannot see the map other channels' players are in,
+	cannot watch them and cannot pick them as a teleport
+	target, but you can still mention or whisper to them.
+
+miaonet_oobe_channel_private_header= Private Channels
+miaonet_oobe_channel_tip=
+	A channel whose name starts with a half-width "!" is private.
+	Players outside cannot see the name of a private channel,
+	but if they learn it and type it exactly, they can still join;
+	the name they type must start with "!" as well. 
+	Players inside a private channel can see the 
+	current channel name in the player list,
+	so mind your screenshots and avoid leaking it by accident.
+
+miaonet_oobe_chat_scopes_header= Chat Scopes
+miaonet_oobe_chat_scopes_desc=
+	Chat scopes: the server has "Global", "Channel"
+	and "Map" scopes, and the chat has an
+	extra "All" tab holding every message you received.
+	Switch tabs with | + | / |.
+	A message sent from the "All" tab goes to the "Global" scope.
+	Join / leave messages, server announcements
+	and whispers show up in every tab.
+	You can also send a single message to a specific scope:
+	"/global-chat" or "/gc", "/channel-chat" or "/cc",
+	"/map-chat" or "/mc".
+
+miaonet_oobe_photo_header= Group Photo Mode
+miaonet_oobe_photo_desc=
+	When taking a group photo with many players,
+	group photo mode is strongly recommended
+	for easier positioning and lower server bandwidth:
+	use "/group-photo-mode", or "/hy" for short, to enable it.
+	A platform then appears in the picture and follows your mouse.
+	Click | to pin the platform and teleport to its center;
+	once pinned, | hides the platform and | unpins it.
+	Other players never see your platform
+	and will just see you floating in the air.
+	While standing on the platform you cannot
+	collect red strawberries, so you can carry one.
+
+miaonet_oobe_fireworks_header= Fireworks
+miaonet_oobe_photo_tip=
+	Enable the "Fireworks" option below and bind "Create Fireworks",
+	then press | to launch fireworks.
+	Fireworks heavily affect other players' normal play,
+	so only use them when it fits (e.g. a photo party).
+
+miaonet_oobe_goldening_protection_header= Golden Protection
+miaonet_oobe_goldening_protection_desc=
+	Golden protection: while carrying a golden strawberry or similar challenge berry,
+	you are never picked by random teleport until you finish it or lose the berry.
+	Picking up such a berry also turns player interactions off automatically;
+	turn them back on manually if you still want them.
+
+miaonet_oobe_livemode_header= Live Mode
+miaonet_oobe_livemode_desc=
+	Live mode blocks every player's messages and emotes and stops you from sending your own;
+	in the player list it hides the room name of every player (including yourself), and if
+	other players are in modded maps you do not have, their map names are hidden as well.
+	You still receive join / leave messages (which can be turned off separately) and announcements.
+	Unlike other games, live mode does not hide nicknames or avatars, and it is never saved.
+
+miaonet_oobe_interface_header= Interface
+miaonet_oobe_interface_desc=
+	If the player list and chat text look too small, tune them in the "UI" submenu below.
+	To get close to the 0.4.1-alpha5 look, set "Player List UI Scale" and "Chat UI Scale" to 10,
+	and "Chat Message Padding Height" to 2.
+
+miaonet_oobe_finish_header= That's It!
+miaonet_oobe_finish_desc=
+	This tour only covers the basics; plenty more is not explained here
+	(rich text messages and custom emotes, for example), so check the advanced guides.
+	You can always use "/help" to list every available command.
+	Have fun on MiaoNet!
+
 miaonet_menu_options= MiaoNet
 miaonet_options_title= MiaoNet Options
 
@@ -84,6 +281,7 @@ miaonet_options_open_emotes_file_tip=
 	Open the emotes file of this mod.
 	Select a text editor for it if needed.
 miaonet_options_reload_emote_settings= Reload Emote Settings
+miaonet_options_open_oobe= Open Onboarding Tour
 miaonet_options_key_bindings= Key Bindings
 
 miaonet_options_behaviours= Behaviours

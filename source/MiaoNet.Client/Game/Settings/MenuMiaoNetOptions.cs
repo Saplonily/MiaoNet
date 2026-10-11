@@ -16,6 +16,28 @@ public static class MenuMiaoNetOptions
         menu.Add(item);
     }
 
+#if USE_CELEMIAO_AUTH
+    private const string LoginUrl =
+        "https://bbs.celemiao.com/oauth/authorize?" +
+        "client_id=bN8BOz8IjLk981LFLckBq3XzA6fsDC0d" +
+        "&response_type=code" +
+        "&redirect_uri=http://localhost:21472/auth" +
+        "&scope=celeste.read";
+
+    public static void StartLogin()
+    {
+        ClientRC.Start();
+        int ret = SDL2.SDL.SDL_OpenURL(LoginUrl);
+        if (ret != 0)
+        {
+            TextInput.SetClipboardText(LoginUrl);
+            var context = MiaoNetModule.Instance.MiaoNetContext;
+            string msg = Dialog.Get("miaonet_options_login_open_failed");
+            context.StatusComponent.ShowStatusMessage(msg);
+        }
+    }
+#endif
+
     public static void BuildMenu(TextMenu menu, bool inGame)
     {
         MiaoNetModuleSettings settings = MiaoNetModule.Settings;
@@ -48,24 +70,7 @@ public static class MenuMiaoNetOptions
 #if USE_CELEMIAO_AUTH
         item = new TextMenu.Button(Dialog.Get("miaonet_options_login"))
         {
-            OnPressed = () =>
-            {
-                ClientRC.Start();
-
-                string url = "https://bbs.celemiao.com/oauth/authorize?" +
-                    "client_id=bN8BOz8IjLk981LFLckBq3XzA6fsDC0d" +
-                    "&response_type=code" +
-                    "&redirect_uri=http://localhost:21472/auth" +
-                    "&scope=celeste.read";
-                int ret = SDL2.SDL.SDL_OpenURL(url);
-                if (ret != 0)
-                {
-                    TextInput.SetClipboardText(url);
-                    var context = MiaoNetModule.Instance.MiaoNetContext;
-                    string msg = Dialog.Get("miaonet_options_login_open_failed");
-                    context.StatusComponent.ShowStatusMessage(msg);
-                }
-            }
+            OnPressed = StartLogin
         };
         menu.Add(item);
         item.AddDescription(menu, Dialog.Clean("miaonet_options_login_tip"));
@@ -405,6 +410,15 @@ public static class MenuMiaoNetOptions
         item.AddDescription(menu, Dialog.Clean("miaonet_options_new_messages_showing_mode_tip"));
 
         #endregion
+
+        if (!inGame)
+        {
+            item = new TextMenu.Button(Dialog.Get("miaonet_options_open_oobe")).Pressed(() =>
+            {
+                menu.SceneAs<Overworld>().Goto<OuiMiaoNetOobe>();
+            });
+            menu.Add(item);
+        }
 
         AddKeyBindingsSection(menu, inGame);
     }
